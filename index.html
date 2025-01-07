@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scouternas Närvarolista</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        #login-form, #result {
+            text-align: center;
+            margin-top: 50px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        input[type="text"] {
+            padding: 8px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-form">
+        <h1>Scoutnärvarolista</h1>
+        <p>Skriv ditt förnamn för att logga in:</p>
+        <input type="text" id="förnamn" placeholder="Förnamn">
+        <button onclick="loggaIn()">Logga in</button>
+    </div>
+
+    <table id="närvarotabell" style="display: none;">
+        <caption style="font-size: 1.5em; margin-bottom: 10px;">Närvarolista för Scouterna</caption>
+        <thead>
+            <tr>
+                <th>Nr</th>
+                <th>Namn</th>
+                <th>Telefonnummer</th>
+                <th>Närvaro</th>
+                <th>Kommer sent</th>
+            </tr>
+        </thead>
+        <tbody id="tabell-kropp">
+        </tbody>
+    </table>
+    <button id="visa-knapp" style="display: none;" onclick="visaNärvaro()">Visa vilka som är närvarande</button>
+    <div id="result"></div>
+
+    <script>
+        const deltagare = [
+            { namn: "Albin, scoutledare", tel: "+46702098967" },
+            { namn: "Erica, scoutledare", tel: "+46709324360" },
+            { namn: "Jonas Håkansson, scoutledare", tel: "+46702280928" },
+            { namn: "Nina Halling, scoutledare", tel: "+46708424373" },
+            { namn: "Oscar Hübner, scoutledare", tel: "+46723147457" },
+            { namn: "Alma", tel: "+46761605463" },
+            { namn: "Alva", tel: "+46733393722" },
+            { namn: "Anton", tel: "+46705419071" },
+            { namn: "Louie", tel: "+46763252084" },
+            { namn: "Bernard", tel: "+46738456803" },
+            { namn: "David", tel: "+46723838282" },
+            { namn: "David", tel: "+46723838283" },
+            { namn: "Emilia", tel: "+46763234942" },
+            { namn: "Gudmundur Ísak Pétursson, IT ansvarig", tel: "+46767966356" },
+            { namn: "Gustav", tel: "+46793322696" },
+            { namn: "Hannes", tel: "+46702009013" },
+            { namn: "Harry", tel: "+46761853028" },
+            { namn: "Hedvig", tel: "+46763947871" },
+            { namn: "Hugo", tel: "+46760092704" },
+            { namn: "Isabella", tel: "+46735296288" },
+            { namn: "Kaspian", tel: "+46737171691" },
+            { namn: "Liv", tel: "+46706070111" },
+            { namn: "Lovisa", tel: "+46702303114" },
+            { namn: "Maja", tel: "+46702249124" },
+            { namn: "Malte", tel: "+46760185611" },
+            { namn: "Olof Bergstrand", tel: "+46724030963" },
+            { namn: "Svante", tel: "+46702081038" },
+            { namn: "Teolina", tel: "+46700589880" },
+            { namn: "Viktor", tel: "+46761268376" }
+        ];
+
+        let inloggadAnvändare = '';
+
+        function laddaTabell() {
+            const tbody = document.getElementById("tabell-kropp");
+            tbody.innerHTML = ''; 
+            deltagare.forEach((deltagare, index) => {
+                const rad = document.createElement("tr");
+                rad.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${deltagare.namn}</td>
+                    <td>${deltagare.tel}</td>
+                    <td><input type="checkbox" class="närvaro-checkbox" disabled></td>
+                    <td><input type="checkbox" class="sent-checkbox" disabled></td>
+                `;
+                tbody.appendChild(rad);
+            });
+        }
+
+        function loggaIn() {
+            const förnamnInput = document.getElementById('förnamn').value.trim().toLowerCase();
+            const hittadDeltagare = deltagare.find(d => d.namn.toLowerCase().startsWith(förnamnInput));
+
+            if (hittadDeltagare) {
+                inloggadAnvändare = hittadDeltagare.namn;
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('närvarotabell').style.display = 'table';
+                document.getElementById('visa-knapp').style.display = 'block';
+
+                aktiveraCheckboxFörAnvändare(hittadDeltagare.namn);
+                alert(`Välkommen, ${inloggadAnvändare}!`);
+            } else {
+                alert('Namnet finns inte i listan. Försök igen.');
+            }
+        }
+
+        function aktiveraCheckboxFörAnvändare(namn) {
+            const rader = document.querySelectorAll('#närvarotabell tbody tr');
+            rader.forEach(rad => {
+                const namnCell = rad.cells[1]?.textContent;
+                const närvaroCheckbox = rad.cells[3]?.querySelector('input');
+                const sentCheckbox = rad.cells[4]?.querySelector('input');
+                if (namnCell === namn) {
+                    närvaroCheckbox.disabled = false;
+                    sentCheckbox.disabled = false;
+                }
+            });
+        }
+
+        function visaNärvaro() {
+            const checkboxes = document.querySelectorAll('#närvarotabell input[type="checkbox"]');
+            let närvarande = [];
+            let försenade = [];
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const row = checkbox.closest('tr');
+                    const namnCell = row.cells[1].textContent;
+                    if (checkbox.classList.contains('närvaro-checkbox')) {
+                        närvarande.push(namnCell);
+                    } else if (checkbox.classList.contains('sent-checkbox')) {
+                        försenade.push(namnCell);
+                    }
+                }
+            });
+
+            const resultDiv = document.getElementById('result');
+            if (närvarande.length > 0) {
+                resultDiv.textContent = `Närvarande scouter: ${närvarande.join(', ')}`;
+            } else {
+                resultDiv.textContent = 'Ingen har markerat sin närvaro ännu.';
+            }
+
+            if (försenade.length > 0) {
+                resultDiv.innerHTML += `<br>Försenade scouter: ${försenade.join(', ')}`;
+            }
+        }
+
+        function nollställNärvaro() {
+            const checkboxes = document.querySelectorAll('#närvarotabell input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('result').textContent = ''; 
+        }
+
+        function schemaläggÅterställning() {
+            setInterval(() => {
+                const nu = new Date();
+                
+                if (nu.getDay() === 4 && nu.getHours() === 0 && nu.getMinutes() === 0) {
+                    nollställNärvaro();
+                }
+            }, 60000); 
+        }
+
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            laddaTabell();
+            schemaläggÅterställning();
+        });
+    </script>
+</body>
+</html>
